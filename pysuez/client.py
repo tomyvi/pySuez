@@ -7,7 +7,7 @@ import datetime
 BASE_URI = 'https://www.toutsurmoneau.fr'
 API_ENDPOINT_LOGIN = '/mon-compte-en-ligne/je-me-connecte'
 API_ENDPOINT_DATA = '/mon-compte-en-ligne/statJData/'
-API_ENDPOINT_HISTORY = '/mon-compte-en-ligne/statMData/'
+#API_ENDPOINT_HISTORY = '/mon-compte-en-ligne/statMData/'
 
 class PySuezError(Exception):
     pass
@@ -128,10 +128,10 @@ class SuezClient():
 
             self.attributes['thisMonthConsumption'] = {}
             for item in data.json():
-                self.attributes['thisMonthConsumption'][item[0]]['m3'] = int(
-                    float(item[1]))
-                self.attributes['thisMonthConsumption'][item[0]]['releve'] = int(
-                    float(item[2]))
+                date = datetime.datetime.strptime(item[0], '%d/%m/%Y').strftime('%Y-%m-%d')
+                self.attributes['thisMonthConsumption'][date] = {}
+                self.attributes['thisMonthConsumption'][date]['m3'] = float(item[1])
+                self.attributes['thisMonthConsumption'][date]['releve'] = float(item[2])
 
         except ValueError:
             raise PySuezError("Issue with this month data")
@@ -155,39 +155,34 @@ class SuezClient():
 
             self.attributes['previousMonthConsumption'] = {}
             for item in data.json():
-                self.attributes['previousMonthConsumption'][item[0]]['m3'] = int(
-                    float(item[1]))
-                self.attributes['previousMonthConsumption'][item[0]]['releve'] = int(
-                    float(item[2]))
+                self.attributes['previousMonthConsumption'][item[0]] = {}
+                self.attributes['previousMonthConsumption'][item[0]]['m3'] = float(item[1])
+                self.attributes['previousMonthConsumption'][item[0]]['releve'] = float(item[2])
 
         except ValueError:
             raise PySuezError("Issue with previous month data")
             pass
 
-        try:
-            url = BASE_URI+API_ENDPOINT_HISTORY
-            url += '{}'.format(self._counter_id)
+        #try:
+        #    url = BASE_URI+API_ENDPOINT_HISTORY
+        #    url += '{}'.format(self._counter_id)
 
-            data = requests.get(url, headers=self._headers)
-            fetched_data = data.json()
-            self.attributes['highestMonthlyConsumption'] = int(
-                float(fetched_data[-1]))
-            fetched_data.pop()
-            self.attributes['lastYearOverAll'] = int(
-                float(fetched_data[-1]))
-            fetched_data.pop()
-            self.attributes['thisYearOverAll'] = int(
-                float(fetched_data[-1]))
-            fetched_data.pop()
-            self.attributes['history'] = {}
-            for item in fetched_data:
-                self.attributes['history'][item[3]] = int(
-                    float(item[1]))
+        #    data = requests.get(url, headers=self._headers)
+        #    fetched_data = data.json()
+        #    self.attributes['highestMonthlyConsumption'] = float(fetched_data[-1])
+        #    fetched_data.pop()
+        #    self.attributes['lastYearOverAll'] = float(fetched_data[-1])
+        #    fetched_data.pop()
+        #    self.attributes['thisYearOverAll'] = float(fetched_data[-1])
+        #    fetched_data.pop()
+        #    self.attributes['history'] = {}
+        #    for item in fetched_data:
+        #        self.attributes['history'][item[3]] = float(item[1])
 
 
-        except ValueError:
-            raise PySuezError("Issue with history data")
-            pass
+        #except ValueError:
+        #    raise PySuezError("Issue with history data")
+        #    pass
 
     def check_credentials(self):
         if self._session is None:
