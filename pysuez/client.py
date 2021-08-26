@@ -155,9 +155,10 @@ class SuezClient():
 
             self.attributes['previousMonthConsumption'] = {}
             for item in data.json():
-                self.attributes['previousMonthConsumption'][item[0]] = {}
-                self.attributes['previousMonthConsumption'][item[0]]['m3'] = float(item[1])
-                self.attributes['previousMonthConsumption'][item[0]]['releve'] = float(item[2])
+                date = datetime.datetime.strptime(item[0], '%d/%m/%Y').strftime('%Y-%m-%d')
+                self.attributes['previousMonthConsumption'][date] = {}
+                self.attributes['previousMonthConsumption'][date]['m3'] = float(item[1])
+                self.attributes['previousMonthConsumption'][date]['releve'] = float(item[2])
 
         except ValueError:
             raise PySuezError("Issue with previous month data")
